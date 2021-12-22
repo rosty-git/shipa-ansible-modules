@@ -1,0 +1,11 @@
+- hosts: localhost
+  tasks:
+    - name: Create shipa framework
+      shipa_framework:
+        shipa_host: <host>
+        shipa_token: <token>
+        name: hello-ansible-1
+
+      register: result
+
+    - debug: var=result
