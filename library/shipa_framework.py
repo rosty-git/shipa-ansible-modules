@@ -27,6 +27,10 @@ options:
         description: Shipa framework name.
         required: true
         type: str
+    resources:
+        description: Shipa framework resources.
+        required: false
+        type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -46,31 +50,101 @@ def test_shipa_access(module, shipa_host, shipa_token):
         return False, "shipa client auth failed"
 
 
-def create_framework(module, shipa_host, shipa_token, name):
+def get_framework(module, shipa_host, shipa_token, name):
     headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
         'Authorization': 'Bearer {}'.format(shipa_token),
     }
 
-    payload = {
-        "shipaFramework": name,
-        "resources": {
-            "general": {
-                "setup": {
-                    "provisioner": "kubernetes"
-                }
+    resp, info = fetch_url(module, "{}/pools-config/{}".format(shipa_host, name),
+                           headers=headers, method="GET")
+
+    status_code = info["status"]
+
+    if status_code >= 400:
+        body = info['body']
+    else:
+        body = resp.read()
+
+    if 200 == status_code:
+        return True, body
+
+    return False, body
+
+
+def create_framework(module, shipa_host, shipa_token, name, resources=None):
+    headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {}'.format(shipa_token),
+    }
+
+    default_resources = {
+        "general": {
+            "setup": {
+                "provisioner": "kubernetes"
             }
         }
     }
 
-    resp, info = fetch_url(module, shipa_host + "/pools-config", data=module.jsonify(payload),
+    if not resources:
+        resources = default_resources
+
+    payload = {
+        "shipaFramework": name,
+        "resources": resources
+    }
+
+    resp, info = fetch_url(module, "{}/pools-config".format(shipa_host), data=module.jsonify(payload),
                            headers=headers, method="POST")
 
     status_code = info["status"]
-    body = resp.read()
+
     if status_code >= 400:
         body = info['body']
+    else:
+        body = resp.read()
+
+    if 200 <= status_code <= 201:
+        return True, body
+
+    return False, body
+
+
+def update_framework(module, shipa_host, shipa_token, name, resources=None):
+    headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer {}'.format(shipa_token),
+    }
+
+    default_resources = {
+        "general": {
+            "setup": {
+                "provisioner": "kubernetes"
+            }
+        }
+    }
+
+    if not resources:
+        resources = default_resources
+
+    payload = {
+        "shipaFramework": name,
+        "resources": resources
+    }
+
+    resp, info = fetch_url(module, "{}/pools-config".format(shipa_host),
+                           data=module.jsonify(payload),
+                           headers=headers, method="PUT")
+
+    status_code = info["status"]
+
+    if status_code >= 400:
+        body = info['body']
+    else:
+        body = resp.read()
 
     if 200 <= status_code <= 201:
         return True, body
@@ -83,6 +157,7 @@ def run_module():
         shipa_host=dict(type='str', required=True, no_log=True),
         shipa_token=dict(type='str', required=True, no_log=True),
         name=dict(type='str', required=True),
+        resources=dict(type='dict', required=False),
     )
 
     result = dict(
@@ -99,8 +174,17 @@ def run_module():
     if not ok:
         module.fail_json(msg=err)
 
-    ok, resp = create_framework(module, module.params['shipa_host'], module.params['shipa_token'],
-                                module.params['name'])
+    exists, resp = get_framework(module, module.params['shipa_host'], module.params['shipa_token'],
+                                 module.params['name'])
+    if not exists:
+        ok, resp = create_framework(module, module.params['shipa_host'], module.params['shipa_token'],
+                                    module.params['name'], module.params['resources'])
+    else:
+        # TODO: compare existing framework with new one
+
+        ok, resp = update_framework(module, module.params['shipa_host'], module.params['shipa_token'],
+                                    module.params['name'], module.params['resources'])
+
     if not ok:
         module.fail_json(msg=resp)
 
