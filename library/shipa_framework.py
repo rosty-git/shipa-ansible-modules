@@ -34,122 +34,7 @@ options:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.urls import fetch_url
-
-
-def test_shipa_access(module, shipa_host, shipa_token):
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': "Bearer {}".format(shipa_token),
-    }
-
-    response, info = fetch_url(module, shipa_host + "/plans", headers=headers, method="GET")
-    if info['status'] == 200:
-        return True, ""
-    else:
-        return False, "shipa client auth failed"
-
-
-def get_framework(module, shipa_host, shipa_token, name):
-    headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer {}'.format(shipa_token),
-    }
-
-    resp, info = fetch_url(module, "{}/pools-config/{}".format(shipa_host, name),
-                           headers=headers, method="GET")
-
-    status_code = info["status"]
-
-    if status_code >= 400:
-        body = info['body']
-    else:
-        body = resp.read()
-
-    if 200 == status_code:
-        return True, body
-
-    return False, body
-
-
-def create_framework(module, shipa_host, shipa_token, name, resources=None):
-    headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer {}'.format(shipa_token),
-    }
-
-    default_resources = {
-        "general": {
-            "setup": {
-                "provisioner": "kubernetes"
-            }
-        }
-    }
-
-    if not resources:
-        resources = default_resources
-
-    payload = {
-        "shipaFramework": name,
-        "resources": resources
-    }
-
-    resp, info = fetch_url(module, "{}/pools-config".format(shipa_host), data=module.jsonify(payload),
-                           headers=headers, method="POST")
-
-    status_code = info["status"]
-
-    if status_code >= 400:
-        body = info['body']
-    else:
-        body = resp.read()
-
-    if 200 <= status_code <= 201:
-        return True, body
-
-    return False, body
-
-
-def update_framework(module, shipa_host, shipa_token, name, resources=None):
-    headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer {}'.format(shipa_token),
-    }
-
-    default_resources = {
-        "general": {
-            "setup": {
-                "provisioner": "kubernetes"
-            }
-        }
-    }
-
-    if not resources:
-        resources = default_resources
-
-    payload = {
-        "shipaFramework": name,
-        "resources": resources
-    }
-
-    resp, info = fetch_url(module, "{}/pools-config".format(shipa_host),
-                           data=module.jsonify(payload),
-                           headers=headers, method="PUT")
-
-    status_code = info["status"]
-
-    if status_code >= 400:
-        body = info['body']
-    else:
-        body = resp.read()
-
-    if 200 <= status_code <= 201:
-        return True, body
-
-    return False, body
+from ansible.module_utils.shipa_client import Client
 
 
 def run_module():
@@ -170,27 +55,26 @@ def run_module():
         argument_spec=module_args,
     )
 
-    ok, err = test_shipa_access(module, module.params['shipa_host'], module.params['shipa_token'])
+    shipa = Client(module, module.params['shipa_host'], module.params['shipa_token'])
+    ok, err = shipa.test_access()
     if not ok:
         module.fail_json(msg=err)
 
-    exists, resp = get_framework(module, module.params['shipa_host'], module.params['shipa_token'],
-                                 module.params['name'])
+    name, resources = module.params['name'], module.params.get('resources')
+    exists, current_state = shipa.get_framework(name)
     if not exists:
-        ok, resp = create_framework(module, module.params['shipa_host'], module.params['shipa_token'],
-                                    module.params['name'], module.params['resources'])
+        ok, resp = shipa.create_framework(name, resources)
+        changed = True
     else:
-        # TODO: compare existing framework with new one
-
-        ok, resp = update_framework(module, module.params['shipa_host'], module.params['shipa_token'],
-                                    module.params['name'], module.params['resources'])
+        ok, resp = shipa.update_framework(name, resources)
+        changed = current_state != resp
 
     if not ok:
         module.fail_json(msg=resp)
 
     result['status'] = "SUCCESS"
     result['shipa_framework'] = resp
-    result['changed'] = True
+    result['changed'] = changed
 
     module.exit_json(**result)
 

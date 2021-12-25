@@ -4,7 +4,7 @@
       shipa_framework:
         shipa_host: <host>
         shipa_token: <token>
-        name: hello-ansible-3
+        name: hello-ansible-4
         resources:
           general:
             setup:
@@ -29,6 +29,5 @@
             containerPolicy:
               allowedHosts: [ "docker.io/shipasoftware" ]
 
-      register: result
-
-    - debug: var=result
+#      register: result
+#    - debug: var=result
