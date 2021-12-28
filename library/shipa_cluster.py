@@ -6,13 +6,13 @@ __metaclass__ = type
 
 DOCUMENTATION = r'''
 ---
-module: shipa_framework
+module: shipa_cluster
 
-short_description: Shipa framework module
+short_description: Shipa cluster module
 
 version_added: "0.0.1"
 
-description: This is module allows to create Shipa framework.
+description: This is module allows to create Shipa cluster.
 
 options:
     shipa_host:
@@ -24,12 +24,16 @@ options:
         required: true
         type: str
     name:
-        description: Shipa framework name.
+        description: Shipa cluster name.
         required: true
         type: str
+    endpoint:
+        description: Shipa cluster endpoint.
+        required: true
+        type: dict
     resources:
-        description: Shipa framework resources.
-        required: false
+        description: Shipa cluster resources.
+        required: true
         type: dict
 '''
 
@@ -42,13 +46,14 @@ def run_module():
         shipa_host=dict(type='str', required=True, no_log=True),
         shipa_token=dict(type='str', required=True, no_log=True),
         name=dict(type='str', required=True),
-        resources=dict(type='dict', required=False),
+        endpoint=dict(type='dict', required=True, no_log=True),
+        resources=dict(type='dict', required=True),
     )
 
     result = dict(
         changed=False,
         status='',
-        shipa_framework={},
+        shipa_cluster={},
     )
 
     module = AnsibleModule(
@@ -60,24 +65,30 @@ def run_module():
     if not ok:
         module.fail_json(msg=err)
 
-    name, resources = module.params['name'], module.params.get('resources')
-    exists, current_state = shipa.get_framework(name)
+    keys = filter(lambda key: not key.startswith('shipa_'), module_args.keys())
+    payload = {
+        key: module.params.get(key) for key in keys
+    }
+
+    name = module.params['name']
+    exists, current_state = shipa.get_cluster(name)
+
     if exists:
-        ok, resp = shipa.update_framework(name, resources)
+        ok, resp = shipa.update_cluster(name, payload)
     else:
-        ok, resp = shipa.create_framework(name, resources)
+        ok, resp = shipa.create_cluster(payload)
 
     if not ok:
         module.fail_json(msg=resp)
 
-    ok, resp = shipa.get_framework(name)
+    ok, resp = shipa.get_cluster(name)
     if not ok:
         module.fail_json(msg=resp)
 
     changed = not exists or current_state != resp
 
     result['status'] = "SUCCESS"
-    result['shipa_framework'] = resp
+    result['shipa_cluster'] = resp
     result['changed'] = changed
 
     module.exit_json(**result)

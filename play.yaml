@@ -1,10 +1,13 @@
 - hosts: localhost
+  vars:
+    - shipa_host: <host>
+    - shipa_token: <token>
   tasks:
     - name: Create shipa framework
       shipa_framework:
-        shipa_host: <host>
-        shipa_token: <token>
-        name: hello-ansible-4
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        name: hello-ansible-3
         resources:
           general:
             setup:
@@ -28,6 +31,33 @@
               disableAppPolicies: false
             containerPolicy:
               allowedHosts: [ "docker.io/shipasoftware" ]
-
-#      register: result
-#    - debug: var=result
+    - name: Create shipa application
+      shipa_application:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        name: ansible-app-1
+        teamowner: shipa-team
+        framework: dev
+    - name: Create shipa cluster
+      shipa_cluster:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        name: ansible-cl-1
+        endpoint:
+          addresses:
+            - https://34.72.90.235
+          caCert: |
+            -----BEGIN CERTIFICATE-----
+            <certificate>
+            -----END CERTIFICATE-----
+          token: "<token>"
+        resources:
+          frameworks:
+            - name: hello-ansible-3
+    - name: Deploy shipa application
+      shipa_app_deploy:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        app: ansible-app-1
+        image: docker.io/shipasoftware/bulletinboard:1.0
+        port: 8000
