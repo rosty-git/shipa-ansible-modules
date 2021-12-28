@@ -4,6 +4,8 @@ from __future__ import (absolute_import, division, print_function)
 
 __metaclass__ = type
 
+import os.path
+
 DOCUMENTATION = r'''
 ---
 module: shipa_cluster
@@ -69,6 +71,16 @@ def run_module():
     payload = {
         key: module.params.get(key) for key in keys
     }
+
+    cert = payload['endpoint'].get('caCert')
+    if cert and os.path.exists(cert):
+        with open(cert) as f:
+            payload['endpoint']['caCert'] = f.read()
+
+    token = payload['endpoint'].get('token')
+    if token and os.path.exists(token):
+        with open(token) as f:
+            payload['endpoint']['token'] = f.read()
 
     name = module.params['name']
     exists, current_state = shipa.get_cluster(name)

@@ -7,7 +7,7 @@
       shipa_framework:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        name: hello-ansible-3
+        name: ansible-fm-1
         resources:
           general:
             setup:
@@ -16,7 +16,7 @@
               append: ["shipa-team"]
             plan:
               name: shipa-plan
-            router: traefik
+            router: nginx
             security:
               disableScan: false
               ignoreCves: [ "CVE-2019-16782", "CVE-2018-16471", "CVE-2018-16470", "CVE-2020-8161" ]
@@ -31,13 +31,7 @@
               disableAppPolicies: false
             containerPolicy:
               allowedHosts: [ "docker.io/shipasoftware" ]
-    - name: Create shipa application
-      shipa_application:
-        shipa_host: "{{ shipa_host }}"
-        shipa_token: "{{ shipa_token }}"
-        name: ansible-app-1
-        teamowner: shipa-team
-        framework: dev
+
     - name: Create shipa cluster
       shipa_cluster:
         shipa_host: "{{ shipa_host }}"
@@ -46,14 +40,20 @@
         endpoint:
           addresses:
             - https://34.72.90.235
-          caCert: |
-            -----BEGIN CERTIFICATE-----
-            <certificate>
-            -----END CERTIFICATE-----
-          token: "<token>"
+          caCert: ./cert
+          token: ./token
         resources:
           frameworks:
-            - name: hello-ansible-3
+            - name: ansible-fm-1
+
+    - name: Create shipa application
+      shipa_application:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        name: ansible-app-1
+        teamowner: shipa-team
+        framework: dev
+
     - name: Deploy shipa application
       shipa_app_deploy:
         shipa_host: "{{ shipa_host }}"
