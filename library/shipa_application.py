@@ -142,7 +142,7 @@ def run_module():
     else:
         ok, resp = shipa.create_application(app)
 
-    if not ok:
+    if not ok or 'error' in str(resp).lower():
         module.fail_json(msg=resp)
 
     ok, resp = shipa.get_application(name)

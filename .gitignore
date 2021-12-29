@@ -2,5 +2,4 @@
 
 .env
 cert
-token
 *.retry

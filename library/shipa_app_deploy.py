@@ -123,7 +123,7 @@ def run_module():
         module.fail_json(msg=resp)
 
     ok, resp = shipa.deploy_app(req)
-    if not ok:
+    if not ok or 'error' in str(resp).lower():
         module.fail_json(msg=resp)
 
     result['status'] = 'SUCCESS'

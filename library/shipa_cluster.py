@@ -90,7 +90,7 @@ def run_module():
     else:
         ok, resp = shipa.create_cluster(payload)
 
-    if not ok:
+    if not ok or 'error' in str(resp).lower():
         module.fail_json(msg=resp)
 
     ok, resp = shipa.get_cluster(name)

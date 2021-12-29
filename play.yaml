@@ -7,7 +7,7 @@
       shipa_framework:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        name: ansible-fm-1
+        name: ansible-fm-2
         resources:
           general:
             setup:
@@ -36,28 +36,28 @@
       shipa_cluster:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        name: ansible-cl-1
+        name: ansible-cl-2
         endpoint:
           addresses:
             - https://34.72.90.235
-          caCert: ./cert
-          token: ./token
+          caCert: ./cert/caCert
+          token: ./cert/token
         resources:
           frameworks:
-            - name: ansible-fm-1
+            - name: ansible-fm-2
 
-    - name: Create shipa application
-      shipa_application:
-        shipa_host: "{{ shipa_host }}"
-        shipa_token: "{{ shipa_token }}"
-        name: ansible-app-1
-        teamowner: shipa-team
-        framework: dev
-
-    - name: Deploy shipa application
-      shipa_app_deploy:
-        shipa_host: "{{ shipa_host }}"
-        shipa_token: "{{ shipa_token }}"
-        app: ansible-app-1
-        image: docker.io/shipasoftware/bulletinboard:1.0
-        port: 8000
+#    - name: Create shipa application
+#      shipa_application:
+#        shipa_host: "{{ shipa_host }}"
+#        shipa_token: "{{ shipa_token }}"
+#        name: ansible-app-1
+#        teamowner: shipa-team
+#        framework: dev
+#
+#    - name: Deploy shipa application
+#      shipa_app_deploy:
+#        shipa_host: "{{ shipa_host }}"
+#        shipa_token: "{{ shipa_token }}"
+#        app: ansible-app-1
+#        image: docker.io/shipasoftware/bulletinboard:1.0
+#        port: 8000
