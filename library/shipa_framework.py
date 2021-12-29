@@ -67,7 +67,7 @@ def run_module():
     else:
         ok, resp = shipa.create_framework(name, resources)
 
-    if not ok or 'error' in str(resp).lower():
+    if not ok or '"error"' in str(resp).lower():
         module.fail_json(msg=resp)
 
     ok, resp = shipa.get_framework(name)
