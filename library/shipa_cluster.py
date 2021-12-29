@@ -75,12 +75,12 @@ def run_module():
     cert = payload['endpoint'].get('caCert')
     if cert and os.path.exists(cert):
         with open(cert) as f:
-            payload['endpoint']['caCert'] = f.read()
+            payload['endpoint']['caCert'] = f.read().strip(' \n')
 
     token = payload['endpoint'].get('token')
     if token and os.path.exists(token):
         with open(token) as f:
-            payload['endpoint']['token'] = f.read()
+            payload['endpoint']['token'] = f.read().strip(' \n')
 
     name = module.params['name']
     exists, current_state = shipa.get_cluster(name)
