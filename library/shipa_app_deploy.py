@@ -84,8 +84,8 @@ def run_module():
         shipa_token=dict(type='str', required=True, no_log=True),
         app=dict(type='str', required=True),
         image=dict(type='str', required=True),
-        port=dict(type='int', required=True),
 
+        port=dict(type='int', required=False),
         private_image=dict(type='bool', required=False),
         registry_user=dict(type='str', required=False),
         registry_secret=dict(type='str', required=False),
