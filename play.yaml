@@ -80,3 +80,20 @@
             value: ansible-value-1
           - name: ANSIBLE_ENV_2
             value: ansible-value-2
+
+    - name: Create shipa network policy
+      shipa_network_policy:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        app: ansible-app-2
+        ingress:
+          policy_mode: allow-custom-rules-only
+          custom_rules:
+            - id: gateway
+              enabled: true
+              description: gateway block test
+              allowed_pools:
+                - dev-ansible-policy
+        egress:
+          policy_mode: allow-all
+        restart_app: false

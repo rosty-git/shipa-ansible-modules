@@ -70,6 +70,9 @@ class Endpoint:
     def app_env(self, app):
         return '{}/env'.format(self._url(self.APPLICATION, app))
 
+    def network_policy(self, app):
+        return '{}/network-policy'.format(self._url(self.APPLICATION, app))
+
     def _url(self, endpoint, resource_name=None):
         url = '{}/{}'.format(self.host, endpoint)
         if resource_name:
@@ -193,6 +196,12 @@ class Client:
 
     def create_app_env(self, req):
         return self._post(self._resource.app_env(req['app']), req)
+
+    def create_network_policy(self, req):
+        return self._put(self._resource.network_policy(req['app']), req)
+
+    def get_network_policy(self, app):
+        return self._get(self._resource.network_policy(app))
 
     def _headers(self):
         return {
