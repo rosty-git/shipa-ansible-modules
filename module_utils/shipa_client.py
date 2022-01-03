@@ -64,6 +64,10 @@ class Endpoint:
     def app_deploy(self, app):
         return '{}/deploy'.format(self._url(self.APPLICATION, app))
 
+    def app_cname(self, app):
+        return '{}/cname'.format(self._url(self.APPLICATION, app))
+
+
     def _url(self, endpoint, resource_name=None):
         url = '{}/{}'.format(self.host, endpoint)
         if resource_name:
@@ -181,6 +185,9 @@ class Client:
         ok = status_code in (HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED)
         body = info.get('body') if ok else resp.read()
         return ok, body
+
+    def create_app_cname(self, req):
+        return self._post(self._resource.app_cname(req['app']), req)
 
     def _headers(self):
         return {
