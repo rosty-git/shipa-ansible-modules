@@ -67,6 +67,8 @@ class Endpoint:
     def app_cname(self, app):
         return '{}/cname'.format(self._url(self.APPLICATION, app))
 
+    def app_env(self, app):
+        return '{}/env'.format(self._url(self.APPLICATION, app))
 
     def _url(self, endpoint, resource_name=None):
         url = '{}/{}'.format(self.host, endpoint)
@@ -188,6 +190,9 @@ class Client:
 
     def create_app_cname(self, req):
         return self._post(self._resource.app_cname(req['app']), req)
+
+    def create_app_env(self, req):
+        return self._post(self._resource.app_env(req['app']), req)
 
     def _headers(self):
         return {

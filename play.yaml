@@ -69,3 +69,14 @@
         app: ansible-app-2
         cname: shipa.team
         scheme: http
+
+    - name: Create shipa app env
+      shipa_app_env:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        app: ansible-app-2
+        envs:
+          - name: ANSIBLE_ENV_1
+            value: ansible-value-1
+          - name: ANSIBLE_ENV_2
+            value: ansible-value-2
