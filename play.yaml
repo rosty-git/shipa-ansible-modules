@@ -7,7 +7,7 @@
       shipa_framework:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        name: ansible-fm-3
+        name: ansible-fm-1
         resources:
           general:
             setup:
@@ -19,8 +19,8 @@
             router: nginx
             security:
               disableScan: false
-              ignoreCves: [ "CVE-2019-16782", "CVE-2018-16471", "CVE-2018-16470", "CVE-2020-8161" ]
-              ignoreComponents: [ "glibc", "django" ]
+#              ignoreCves: [ "CVE-2019-16782", "CVE-2018-16471", "CVE-2018-16470", "CVE-2020-8161" ]
+#              ignoreComponents: [ "glibc", "django" ]
             appQuota:
               limit: "5"
             networkPolicy:
@@ -36,30 +36,30 @@
       shipa_cluster:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        name: ansible-cl-2
+        name: ansible-cl-1
         endpoint:
           addresses:
-            - https://34.72.90.235
+            - https://34.67.82.140
           caCert: ./cert/caCert
           token: ./cert/token
         resources:
           frameworks:
-            - name: ansible-fm-3
+            - name: ansible-fm-1
 
     - name: Create shipa application
       shipa_application:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        name: ansible-app-2
+        name: ansible-app-1
         teamowner: shipa-team
-        framework: dev
+        framework: ansible-fm-1
 
     - name: Deploy shipa application
       shipa_app_deploy:
         shipa_host: "{{ shipa_host }}"
         shipa_token: "{{ shipa_token }}"
-        app: ansible-app-2
-        image: docker.io/shipasoftware/bulletinboard:1.0
+        app: ansible-app-1
+        image: docker.io/shipasoftware/go-app:v1
         port: 8000
 
     - name: Create shipa app cname

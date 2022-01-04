@@ -161,7 +161,7 @@ class Client:
             params['port-protocol'] = 'TCP'
 
         if req.get('detach'):
-            params["detach"] = 'true'
+            params['detach'] = 'true'
 
         if req.get('message'):
             params['message'] = req.get('message')
@@ -169,9 +169,9 @@ class Client:
         if req.get('shipayaml'):
             with open(req.get('shipayaml')) as f:
                 content = f.read()
-                content_bytes = content.encode("ascii")
+                content_bytes = content.encode('ascii')
                 base64_bytes = base64.b64encode(content_bytes)
-                params["shipayaml"] = base64_bytes.decode("ascii")
+                params['shipayaml'] = base64_bytes.decode('ascii')
 
         url = self._resource.app_deploy(req['app'])
         payload = form_urlencoded(params)
@@ -188,7 +188,9 @@ class Client:
         resp, info = fetch_url(self.module, url, **kwargs)
         status_code = info.get('status', HTTPStatus.BAD_REQUEST)
         ok = status_code in (HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED)
-        body = info.get('body') if ok else resp.read()
+        body = info.get('body') or resp.read()
+        if 'There are vulnerabilities!' in str(body):
+            ok = False
         return ok, body
 
     def create_app_cname(self, req):
