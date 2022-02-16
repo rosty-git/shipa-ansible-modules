@@ -97,3 +97,16 @@
         egress:
           policy_mode: allow-all
         restart_app: false
+
+    - name: Create shipa job
+      shipa_job:
+        shipa_host: "{{ shipa_host }}"
+        shipa_token: "{{ shipa_token }}"
+        name: ansible-job-1
+        framework: shipayaml
+        policy:
+          restartPolicy: Never
+        containers:
+          - name: job
+            image: golang:1.16
+            command: [ "/bin/bash", "ls", "-l" ]

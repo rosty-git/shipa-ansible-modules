@@ -45,6 +45,7 @@ class Endpoint:
     FRAMEWORK = 'pools-config'
     APPLICATION = 'apps'
     CLUSTER = 'provisioner/clusters'
+    JOB = 'jobs'
 
     def __init__(self, host):
         self.host = host
@@ -60,6 +61,9 @@ class Endpoint:
 
     def cluster(self, resource_name=None):
         return self._url(self.CLUSTER, resource_name)
+
+    def job(self, resource_name=None):
+        return self._url(self.JOB, resource_name)
 
     def app_deploy(self, app):
         return '{}/deploy'.format(self._url(self.APPLICATION, app))
@@ -204,6 +208,20 @@ class Client:
 
     def get_network_policy(self, app):
         return self._get(self._resource.network_policy(app))
+
+    def create_job(self, req):
+        return self._post(self._resource.job(), req)
+
+    def get_job(self, name):
+        ok, jobs = self._get(self._resource.job())
+        if not ok:
+            return False, None
+
+        for job in jobs:
+            if job['name'] == name:
+                return True, job
+
+        return False, None
 
     def _headers(self):
         return {
