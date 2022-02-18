@@ -52,7 +52,9 @@
         shipa_token: "{{ shipa_token }}"
         name: ansible-app-1
         teamowner: shipa-team
-        framework: ansible-fm-1
+        framework: shipayaml
+        plan: dev
+        tags: ["dev"]
 
     - name: Deploy shipa application
       shipa_app_deploy:

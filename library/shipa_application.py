@@ -97,19 +97,19 @@ def run_module():
         name=dict(type='str', required=True),
         framework=dict(type='str', required=True),
         teamowner=dict(type='str', required=True),
+        plan=dict(type='str', required=True),
+        tags=dict(type='list', required=True),
 
-        description=dict(type='str', required=False),
-        plan=dict(type='dict', required=False),
-        units=dict(type='list', required=False),
-        cname=dict(type='list', required=False),
-        ip=dict(type='str', required=False),
-        org=dict(type='str', required=False),
-        entrypoints=dict(type='list', required=False),
-        routers=dict(type='list', required=False),
-        lock=dict(type='dict', required=False),
-        tags=dict(type='list', required=False),
-        platform=dict(type='str', required=False),
-        status=dict(type='str', required=False),
+        # description=dict(type='str', required=False),
+        # units=dict(type='list', required=False),
+        # cname=dict(type='list', required=False),
+        # ip=dict(type='str', required=False),
+        # org=dict(type='str', required=False),
+        # entrypoints=dict(type='list', required=False),
+        # routers=dict(type='list', required=False),
+        # lock=dict(type='dict', required=False),
+        # platform=dict(type='str', required=False),
+        # status=dict(type='str', required=False),
     )
 
     result = dict(
@@ -133,6 +133,8 @@ def run_module():
     }
     app['pool'] = app['framework']
     del app['framework']
+    app['teamOwner'] = app['teamowner']
+    del app['teamowner']
 
     name = module.params['name']
     exists, current_state = shipa.get_application(name)

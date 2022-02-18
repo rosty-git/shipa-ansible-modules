@@ -127,7 +127,7 @@ class Client:
 
     def update_application(self, name, app):
         payload = {
-            key: app.get(key) for key in ('pool', 'teamowner', 'description', 'plan', 'platform', 'tags')
+            key: app.get(key) for key in ('pool', 'teamOwner', 'plan', 'tags')
         }
         return self._put(self._resource.application(name), payload)
 
