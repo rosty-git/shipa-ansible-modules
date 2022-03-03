@@ -178,19 +178,7 @@ class Client:
                 params['shipayaml'] = base64_bytes.decode('ascii')
 
         url = self._resource.app_deploy(req['app'])
-        payload = form_urlencoded(params)
-        headers = self._headers()
-        headers['Content-Type'] = 'application/x-www-form-urlencoded'
-
-        kwargs = {
-            'headers': headers,
-            'method': 'POST',
-            'timeout': 1500,
-            'data': payload
-        }
-
-        resp, info = fetch_url(self.module, url, **kwargs)
-        status_code = info.get('status', HTTPStatus.BAD_REQUEST)
+        status_code, body = self._raw_request('POST', url, params)
         ok = status_code in (HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED)
         body = info.get('body') or resp.read()
         if 'There are vulnerabilities!' in str(body):
