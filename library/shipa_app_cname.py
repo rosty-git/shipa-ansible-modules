@@ -31,10 +31,10 @@ options:
         description: Shipa application cname.
         required: true
         type: str
-    scheme:
+    encrypt:
         description: Shipa application cname scheme type: http/https.
         required: true
-        type: str
+        type: bool
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -47,7 +47,7 @@ def run_module():
         shipa_token=dict(type='str', required=True, no_log=True),
         app=dict(type='str', required=True),
         cname=dict(type='str', required=True),
-        scheme=dict(type='str', default='http', choices=['http', 'https']),
+        encrypt=dict(type='bool', required=True),
     )
 
     result = dict(
@@ -69,6 +69,11 @@ def run_module():
     payload = {
         key: module.params.get(key) for key in keys
     }
+
+    scheme = 'http'
+    if payload.get('encrypt'):
+        scheme = 'https'
+    payload['scheme'] = scheme
 
     name = module.params['app']
     exists, resp = shipa.get_application(name)
