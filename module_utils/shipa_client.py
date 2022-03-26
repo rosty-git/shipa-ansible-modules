@@ -141,44 +141,8 @@ class Client:
         return self._put(self._resource.cluster(name), payload)
 
     def deploy_app(self, req):
-        params = {
-            'image': req['image']
-        }
-
-        if req.get('private_image'):
-            params['private-image'] = 'true'
-            params['registry-user'] = req.get('registry_user')
-            params['registry-secret'] = req.get('registry_secret')
-
-        if req.get('steps'):
-            params['steps'] = str(req.get('steps'))
-
-        if req.get('step_weight'):
-            params['step-weight'] = str(req.get('step_weight'))
-
-        if req.get('step_interval'):
-            d = parse_duration(req.get('step_interval'))
-            params['step-interval'] = d.seconds
-
-        if req.get('port'):
-            params['port-number'] = int(req.get('port'))
-            params['port-protocol'] = 'TCP'
-
-        if req.get('detach'):
-            params['detach'] = 'true'
-
-        if req.get('message'):
-            params['message'] = req.get('message')
-
-        if req.get('shipayaml'):
-            with open(req.get('shipayaml')) as f:
-                content = f.read()
-                content_bytes = content.encode('ascii')
-                base64_bytes = base64.b64encode(content_bytes)
-                params['shipayaml'] = base64_bytes.decode('ascii')
-
         url = self._resource.app_deploy(req['app'])
-        status_code, body = self._raw_request('POST', url, params)
+        status_code, body = self._raw_request('POST', url, req)
         ok = status_code in (HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED)
         body = info.get('body') or resp.read()
         if 'There are vulnerabilities!' in str(body):

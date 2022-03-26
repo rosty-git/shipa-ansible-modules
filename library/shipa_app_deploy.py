@@ -31,47 +31,31 @@ options:
         description: Shipa application image.
         required: true
         type: str
-    port:
-        description: Shipa application port.
+    appConfig:
+        description: Application configuration.
         required: true
-        type: int
+        type: dict
     
-    private-image:
-        description: Is a private image.
+    canarySettings:
+        description: Application canary settings.
         required: false
-        type: bool
-    registry-user:
-        description: Private docker registry user name.
+        type: dict
+    podAutoScaler:
+        description: Pod auto-scaler settings.
         required: false
-        type: str
-    registry-secret:
-        description: Private docker registry secret.
+        type: dict
+    port:
+        description: Application port settings.
         required: false
-        type: str
-    steps:
-        description: Steps.
+        type: dict
+    registry:
+        description: Private registry settings.
         required: false
-        type: int
-    step-weight:
-        description: Step weight.
+        type: dict
+    volumesToBind:
+        description: Volumes options.
         required: false
-        type: int
-    step-interval:
-        description: Step interval.
-        required: false
-        type: str
-    detach:
-        description: Detach.
-        required: false
-        type: bool
-    message:
-        description: Message.
-        required: false
-        type: str
-    shipayaml:
-        description: ShipaYaml.
-        required: false
-        type: str
+        type: list
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -85,16 +69,12 @@ def run_module():
         app=dict(type='str', required=True),
         image=dict(type='str', required=True),
 
-        port=dict(type='int', required=False),
-        private_image=dict(type='bool', required=False),
-        registry_user=dict(type='str', required=False),
-        registry_secret=dict(type='str', required=False),
-        steps=dict(type='int', required=False),
-        step_weight=dict(type='int', required=False),
-        step_interval=dict(type='str', required=False),
-        detach=dict(type='bool', required=False),
-        message=dict(type='str', required=False),
-        shipayaml=dict(type='str', required=False),
+        appConfig=dict(type='dict', required=False),
+        canarySettings=dict(type='dict', required=False),
+        podAutoScaler=dict(type='dict', required=False),
+        port=dict(type='dict', required=False),
+        registry=dict(type='dict', required=False),
+        volumesToBind=dict(type='list', required=False),
     )
 
     result = dict(
@@ -116,11 +96,6 @@ def run_module():
     req = {
         key: module.params.get(key) for key in keys
     }
-
-    name = module.params['app']
-    exists, resp = shipa.get_application(name)
-    if not exists:
-        module.fail_json(msg=resp)
 
     ok, resp = shipa.deploy_app(req)
     if not ok or '"error"' in str(resp).lower():

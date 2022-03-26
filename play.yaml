@@ -62,7 +62,12 @@
         shipa_token: "{{ shipa_token }}"
         app: ansible-app-1
         image: docker.io/shipasoftware/go-app:v1
-        port: 8000
+        appConfig:
+          team: shipa-team
+          framework: shipayaml
+        port:
+          number: 8000
+          protocol: TCP
 
     - name: Create shipa app cname
       shipa_app_cname:
