@@ -3,3 +3,4 @@
 .env
 cert
 *.retry
+venv

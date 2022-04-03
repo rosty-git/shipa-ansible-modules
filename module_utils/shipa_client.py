@@ -144,7 +144,6 @@ class Client:
         url = self._resource.app_deploy(req['app'])
         status_code, body = self._raw_request('POST', url, req)
         ok = status_code in (HTTPStatus.OK, HTTPStatus.CREATED, HTTPStatus.ACCEPTED)
-        body = info.get('body') or resp.read()
         if 'There are vulnerabilities!' in str(body):
             ok = False
         return ok, body
