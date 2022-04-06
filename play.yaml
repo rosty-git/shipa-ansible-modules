@@ -65,12 +65,11 @@
         appConfig:
           team: shipa-team
           framework: project1
-#          teamowner: shipa-team
-#          plan: dev
-#          tags: [ "dev" ]
-#        port:
-#          number: 8000
-#          protocol: TCP
+        port:
+          number: 8000
+        volumes:
+          - mountPath: /mnt/vol1
+            name: vol1
 
 #    - name: Create shipa app cname
 #      shipa_app_cname:

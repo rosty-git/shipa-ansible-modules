@@ -52,7 +52,7 @@ options:
         description: Private registry settings.
         required: false
         type: dict
-    volumesToBind:
+    volumes:
         description: Volumes options.
         required: false
         type: list
@@ -74,7 +74,7 @@ def run_module():
         podAutoScaler=dict(type='dict', required=False),
         port=dict(type='dict', required=False),
         registry=dict(type='dict', required=False),
-        volumesToBind=dict(type='list', required=False),
+        volumes=dict(type='list', required=False),
     )
 
     result = dict(
@@ -96,6 +96,22 @@ def run_module():
     req = {
         key: module.params.get(key) for key in keys
     }
+
+    if req.get('port') and req['port'].get('protocol', '') == '':
+        req['port']['protocol'] = "TCP"
+
+    if req.get('volumes'):
+        volumes = []
+        for v in req.get('volumes'):
+            vol = {
+                'volumeName': v.get('name'),
+                'volumeMountPath': v.get('mountPath'),
+            }
+            if v.get('mountOptions'):
+                vol['volumeMountOptions'] = v.get('mountOptions')
+            volumes.append(vol)
+        req['volumesToBind'] = volumes
+        del req['volumes']
 
     ok, resp = shipa.deploy_app(req)
     if not ok or '"error"' in str(resp).lower():
